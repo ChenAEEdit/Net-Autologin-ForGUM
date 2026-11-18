@@ -84,3 +84,25 @@ echo 'CONFIG_PACKAGE_luci-app-net-autologin=m' >> .config
 make defconfig
 make package/luci-app-net-autologin/compile V=s
 ```
+
+---
+
+# 7. 友情链接
+
+| 项目              | 地址                                        | 说明                                      |
+| --------------- | ----------------------------------------- | --------------------------------------- |
+| **UA3F**        | https://github.com/SunBK201/UA3F          | 本文的核心组件：HTTP 头重写 / 反共享检测，作者 SunBK201    |
+| UA3F Releases   | https://github.com/SunBK201/UA3F/releases | 下载 ipk/apk 的地方；注意先看后缀和架构                |
+| **OpenWrt**     | https://openwrt.org/                      | 上游项目，文档、Wiki、硬件支持列表                     |
+| OpenWrt 固件选择器   | https://firmware-selector.openwrt.org/    | 按型号查官方固件，买设备前可以先查"有没有官方支持"              |
+| **ImmortalWrt** | https://immortalwrt.org/                  | 国内常用的 OpenWrt 分支，中文软件包更全                |
+| ImmortalWrt 下载  | https://downloads.immortalwrt.org/        | 按 target 找固件；建议选 24.10 及以上（自带 nftables） |
+
+> 鸣谢：UA3F 让"宿舍路由器 + 校园网"这件事变得可行；OpenWrt / ImmortalWrt 提供了可折腾的底座。
+> 献给广航后来的同学——少踩一个坑，就是省一晚上。
+
+---
+
+# 8.License
+
+**This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.**
