@@ -1,16 +1,16 @@
-# OpenWrt 网络自动登录
+# 1.OpenWrt 网络自动登录
 
 - 只针对移动校园网，本项目不提供校园网破解，只针对登陆逻辑。
 
 插件通过 LuCI 配置认证账号。它在指定的上联接口上检测 IPv4 联网状态，掉线时向原脚本使用的 `webauth.do` 门户提交登录请求。收到 HTTP 204 后，界面显示“已联网”。
-# 图片预览
+# 2.图片预览
 ![](./assest/1.png)
 ---
 ![](./assest/2.png)
 ---
 ![](./assest/3.png)
 
-# 如何安装？
+# 3.如何安装？
 
 用 `command -v apk` 或 `command -v opkg` 确认路由器的软件包管理器。安装包中的脚本和界面资源适用于不同 CPU 架构。安装依赖为 `luci-base`、`curl` 和 `ca-bundle`，缺少依赖时软件包管理器需要访问对应固件的软件源。
 
@@ -34,7 +34,7 @@ APK 是本地构建的未签名安装包，`--allow-untrusted` 仅用于这条�
 
 已安装旧版时，可直接用新版安装包升级，原有的 UCI 配置会保留。
 
-# 配置
+# 4.配置
 
 - 1. 登录 LuCI，打开 **服务 → 网络自动登录 → 设置**。安装后若刚好有已登录的 LuCI 会话，重新登录一次以加载菜单权限。
 - 2. 确认上联接口名称。默认是 `wan`，也可以填「网络 → 接口」里的逻辑接口名称。
@@ -54,7 +54,7 @@ APK 是本地构建的未签名安装包，`--allow-untrusted` 仅用于这条�
 /etc/init.d/net disable
 ```
 
-# 状态与日志
+# 5.状态与日志
 
 打开 **服务 → 网络自动登录 → 运行日志**，选择显示级别和条数。页面每 5 秒刷新一次，默认显示最近 100 条，最多显示 200 条符合条件的日志。
 
@@ -72,7 +72,7 @@ logread -e net-autologin
 
 卸载时，使用 `opkg remove luci-app-net-autologin` 或 `apk del luci-app-net-autologin`。
 
-# 用 OpenWrt SDK 构建
+# 6.用 OpenWrt SDK 构建
 
 将本目录复制到对应版本 SDK 的 `package/luci-app-net-autologin/`，执行以下命令。SDK 的依赖和 feeds 应与目标固件版本一致。
 
@@ -83,3 +83,19 @@ echo 'CONFIG_PACKAGE_luci-app-net-autologin=m' >> .config
 make defconfig
 make package/luci-app-net-autologin/compile V=s
 ```
+---
+
+## 7. 友情链接
+
+| 项目              | 地址                                        | 说明                                      |
+| --------------- | ----------------------------------------- | --------------------------------------- |
+| **UA3F**        | https://github.com/SunBK201/UA3F          | 本文的核心组件：HTTP 头重写 / 反共享检测，作者 SunBK201    |
+| UA3F Releases   | https://github.com/SunBK201/UA3F/releases | 下载 ipk/apk 的地方；注意先看后缀和架构                |
+| **OpenWrt**     | https://openwrt.org/                      | 上游项目，文档、Wiki、硬件支持列表                     |
+| OpenWrt 固件选择器   | https://firmware-selector.openwrt.org/    | 按型号查官方固件，买设备前可以先查"有没有官方支持"              |
+| **ImmortalWrt** | https://immortalwrt.org/                  | 国内常用的 OpenWrt 分支，中文软件包更全                |
+| ImmortalWrt 下载  | https://downloads.immortalwrt.org/        | 按 target 找固件；建议选 24.10 及以上（自带 nftables） |
+
+> 鸣谢：UA3F 让"宿舍路由器 + 校园网"这件事变得可行；OpenWrt / ImmortalWrt 提供了可折腾的底座。
+> 献给广航后来的同学——少踩一个坑，就是省一晚上。
+
