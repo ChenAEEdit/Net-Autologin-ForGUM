@@ -1,6 +1,7 @@
 # OpenWrt 网络自动登录
 
-- 只针对移动校园网，本项目不提供校园网破解，只针对登陆逻辑。
+- 只针对移动校园网，本项目不提供校园网破解，只针对登陆逻辑。[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 
 插件通过 LuCI 配置认证账号。它在指定的上联接口上检测 IPv4 联网状态，掉线时向原脚本使用的 `webauth.do` 门户提交登录请求。收到 HTTP 204 后，界面显示“已联网”。
 # 图片预览
@@ -83,3 +84,6 @@ echo 'CONFIG_PACKAGE_luci-app-net-autologin=m' >> .config
 make defconfig
 make package/luci-app-net-autologin/compile V=s
 ```
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
