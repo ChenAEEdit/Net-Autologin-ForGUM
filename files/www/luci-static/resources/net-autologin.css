@@ -1,0 +1,375 @@
+.net-autologin-page {
+	--nal-surface: var(--background-color-high, var(--surface-panel, #fff));
+	--nal-ink: var(--text-color-high, var(--text-strong, #202f38));
+	--nal-muted: var(--text-color-medium, var(--muted-text, #526570));
+	--nal-edge: var(--border-color-low, var(--border-muted, #d8e2e5));
+	--nal-accent: #126c63;
+	--nal-accent-bg: #e0f3ed;
+	color: var(--nal-ink);
+}
+
+:root[data-darkmode="true"] .net-autologin-page,
+:root[data-argon-mode="dark"] .net-autologin-page,
+:root[data-theme="dark"] .net-autologin-page,
+body[data-theme="dark"] .net-autologin-page {
+	--nal-surface: var(--background-color-high, var(--surface-panel, #232b31));
+	--nal-ink: var(--text-color-high, var(--text-strong, #e9eff2));
+	--nal-muted: var(--text-color-medium, var(--muted-text, #bccbd1));
+	--nal-edge: var(--border-color-low, var(--border-muted, #414e54));
+	--nal-accent: #a5eadb;
+	--nal-accent-bg: #244840;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-darkmode="false"]):not([data-argon-mode="light"]):not([data-theme="light"]) .net-autologin-page {
+		--nal-surface: var(--background-color-high, var(--surface-panel, #232b31));
+		--nal-ink: var(--text-color-high, var(--text-strong, #e9eff2));
+		--nal-muted: var(--text-color-medium, var(--muted-text, #bccbd1));
+		--nal-edge: var(--border-color-low, var(--border-muted, #414e54));
+		--nal-accent: #a5eadb;
+		--nal-accent-bg: #244840;
+	}
+}
+
+.net-autologin-heading {
+	position: static;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: .85rem 1.25rem;
+	margin: 0 0 1rem;
+	padding: .2rem 0 .85rem;
+	border-bottom: 1px solid var(--nal-edge);
+	background: transparent;
+	color: inherit;
+	box-shadow: none;
+}
+
+.net-autologin-identity {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .45rem .8rem;
+}
+
+.net-autologin-heading .net-autologin-identity > h2 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: inherit;
+	font-size: 1.5rem;
+	font-weight: 680;
+	line-height: 1.3;
+}
+
+.net-autologin-version {
+	padding: .2rem .45rem;
+	border: 1px solid var(--nal-edge);
+	border-radius: .3rem;
+	color: var(--nal-muted);
+	font-size: .82rem;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.net-autologin-nav {
+	display: inline-flex;
+	gap: .25rem;
+	padding: .25rem;
+	border: 1px solid var(--nal-edge);
+	border-radius: .55rem;
+	background: var(--nal-surface);
+}
+
+.net-autologin-nav > a {
+	padding: .42rem .75rem;
+	border-radius: .32rem;
+	color: var(--nal-muted);
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.net-autologin-nav > a:hover,
+.net-autologin-nav > a[aria-current="page"] {
+	background: var(--nal-accent-bg);
+	color: var(--nal-accent);
+}
+
+.net-autologin-nav > a[aria-current="page"] {
+	font-weight: 650;
+}
+
+.net-autologin-summary {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem 1.75rem;
+	margin: 0 0 1rem;
+	padding: 1.12rem 1.35rem;
+	border: 1px solid #315660;
+	border-inline-start: 4px solid #56cbb6;
+	border-radius: .65rem;
+	background: #132e37;
+	color: #f3f9fb;
+}
+
+.net-autologin-summary h3 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #f3f9fb;
+	font-size: 1rem;
+	font-weight: 650;
+}
+
+.net-autologin-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: .4rem;
+	padding: .25rem .6rem;
+	border-radius: 2rem;
+	background: #324a53;
+	color: #e1edf0;
+	font-size: .84rem;
+}
+
+.net-autologin-badge::before {
+	width: .42rem;
+	height: .42rem;
+	border-radius: 50%;
+	background: currentColor;
+	content: "";
+}
+
+.net-autologin-badge[data-tone="online"] {
+	background: #1c5147;
+	color: #a4f3d9;
+}
+
+.net-autologin-badge[data-tone="pending"] {
+	background: #4a412d;
+	color: #ffdc99;
+}
+
+.net-autologin-badge[data-tone="error"] {
+	background: #583741;
+	color: #ffd0d0;
+}
+
+.net-autologin-summary .net-autologin-detail {
+	margin: .55rem 0 0;
+	color: #bad2d9;
+}
+
+.net-autologin-enabled .cbi-value {
+	display: flex;
+	align-items: center;
+	gap: .8rem;
+	margin: 0;
+	padding: .55rem .75rem;
+	border: 1px solid #436670;
+	border-radius: .5rem;
+	background: #1c3b45;
+}
+
+.net-autologin-enabled .cbi-value > .cbi-value-title,
+.net-autologin-enabled .cbi-value > .cbi-value-field {
+	display: block;
+	flex: none;
+	float: none;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	color: #f3f9fb;
+	text-align: start;
+}
+
+.net-autologin-enabled .cbi-checkbox {
+	display: flex;
+	align-items: center;
+}
+
+.net-autologin-enabled input[type="checkbox"] {
+	position: static;
+	display: block;
+	width: 2.6rem;
+	height: 1.4rem;
+	margin: 0;
+	border: 1px solid #78939c;
+	border-radius: 2rem;
+	appearance: none;
+	opacity: 1;
+	background: radial-gradient(circle at .68rem 50%, #f7fbfc .43rem, transparent .46rem), #405b66;
+	cursor: pointer;
+}
+
+.net-autologin-enabled input[type="checkbox"]:checked {
+	border-color: #70d6c1;
+	background: radial-gradient(circle at calc(100% - .68rem) 50%, #f7fbfc .43rem, transparent .46rem), #258b7d;
+}
+
+.net-autologin-enabled input[type="checkbox"]:disabled {
+	opacity: .55;
+	cursor: default;
+}
+
+.net-autologin-enabled input[type="checkbox"] + label {
+	display: none;
+}
+
+.net-autologin-page :focus-visible {
+	outline: 2px solid #53af9b;
+	outline-offset: 2px;
+}
+
+.net-autologin-settings > .cbi-section,
+.net-autologin-logs {
+	box-sizing: border-box;
+	margin: 0;
+	border: 1px solid var(--nal-edge);
+	border-radius: .65rem;
+	background: var(--nal-surface);
+}
+
+.net-autologin-settings .cbi-section-node-tabbed {
+	margin: 0;
+	padding: .55rem 1.15rem;
+	border: 0;
+	background: transparent;
+}
+
+.net-autologin-settings .cbi-tabmenu {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .35rem;
+	margin: 0;
+	padding: .45rem .8rem 0;
+	border-bottom: 1px solid var(--nal-edge);
+}
+
+.net-autologin-settings .cbi-tabmenu > li {
+	height: auto;
+	max-width: none;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.net-autologin-settings .cbi-tabmenu > li > a {
+	display: block;
+	padding: .55rem .6rem;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	background: transparent;
+	color: var(--nal-muted);
+	line-height: 1.4;
+}
+
+.net-autologin-settings .cbi-tabmenu > .cbi-tab > a {
+	border-bottom-color: var(--nal-accent);
+	color: var(--nal-accent);
+	font-weight: 650;
+}
+
+.net-autologin-settings .cbi-section-node-tabbed .cbi-value:not(.hidden) {
+	display: grid;
+	grid-template-columns: minmax(8.5rem, 11rem) minmax(0, 1fr);
+	align-items: baseline;
+	gap: .35rem .9rem;
+	margin: 0;
+	padding: .65rem 0;
+	border: 0;
+	background: transparent;
+}
+
+.net-autologin-settings .cbi-section-node-tabbed .cbi-value-title,
+.net-autologin-settings .cbi-section-node-tabbed .cbi-value-field {
+	display: block;
+	float: none;
+	min-width: 0;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	color: var(--nal-ink);
+	text-align: start;
+}
+
+.net-autologin-settings .cbi-section-node-tabbed .cbi-value-field {
+	max-width: 34rem;
+}
+
+.net-autologin-settings .cbi-value-field :is(input[type="text"], input[type="password"], select, .cbi-dropdown) {
+	box-sizing: border-box;
+	max-width: 100%;
+}
+
+.net-autologin-settings .cbi-value-description {
+	color: var(--nal-muted);
+}
+
+.net-autologin-logs {
+	padding: 1rem;
+}
+
+.net-autologin-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .7rem 1rem;
+	margin-bottom: .85rem;
+}
+
+.net-autologin-filters > div {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: .4rem .55rem;
+}
+
+.net-autologin-filters label {
+	margin: 0;
+	color: var(--nal-ink);
+}
+
+.net-autologin-logs textarea {
+	box-sizing: border-box;
+	display: block;
+	width: 100%;
+	padding: .85rem;
+	border: 1px solid #334a53;
+	border-radius: .45rem;
+	background: #11242c;
+	color: #d9eaf0;
+	font: .8rem/1.6 ui-monospace, "Noto Sans Mono", monospace;
+	resize: vertical;
+}
+
+.net-autologin-log-message {
+	margin: .55rem 0 0;
+	color: var(--nal-muted);
+}
+
+.net-autologin-log-message:empty {
+	margin: 0;
+}
+
+@media (max-width: 600px) {
+	.net-autologin-summary {
+		padding: .85rem 1rem;
+	}
+
+	.net-autologin-settings .cbi-section-node-tabbed .cbi-value:not(.hidden) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.net-autologin-settings .cbi-section-node-tabbed .cbi-value-field,
+	.net-autologin-settings .cbi-value-field :is(input[type="text"], input[type="password"], select, .cbi-dropdown) {
+		max-width: 100%;
+		width: 100%;
+	}
+}

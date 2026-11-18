@@ -1,0 +1,25 @@
+{
+	"admin/services/net-autologin": {
+		"title": "GUM移动网络自动登录",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "@ASSET_PATH@/settings"
+		},
+		"depends": {
+			"acl": [ "luci-app-net-autologin" ]
+		}
+	},
+	"admin/services/net-autologin/settings": {
+		"action": {
+			"type": "view",
+			"path": "@ASSET_PATH@/settings"
+		}
+	},
+	"admin/services/net-autologin/logs": {
+		"action": {
+			"type": "view",
+			"path": "@ASSET_PATH@/logs"
+		}
+	}
+}

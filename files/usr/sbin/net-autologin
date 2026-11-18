@@ -1,0 +1,206 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /lib/functions/network.sh
+
+STATUS_FILE=/var/run/net-autologin.status
+PROBE_PRIMARY=http://connectivitycheck.gstatic.com/generate_204
+PROBE_SECONDARY=http://connect.rom.miui.com/generate_204
+
+umask 077
+state=
+sleeper=
+request_dir=$(mktemp -d /var/run/net-autologin.XXXXXX) || exit 1
+
+cleanup() {
+	[ -z "$sleeper" ] || kill "$sleeper" 2>/dev/null
+	rm -f "$STATUS_FILE"
+	rm -rf "$request_dir"
+}
+
+trap cleanup EXIT
+trap 'exit 0' INT TERM
+
+pause() {
+	sleep "$1" &
+	sleeper=$!
+	wait "$sleeper"
+	sleeper=
+}
+
+set_led() {
+	local name="$1" brightness="$2"
+
+	case "$name" in
+		''|.|..|*[!a-zA-Z0-9_.:-]*) return 0 ;;
+	esac
+
+	local path="/sys/class/leds/$name/brightness"
+	[ ! -w "$path" ] || printf '%s\n' "$brightness" > "$path"
+}
+
+set_state() {
+	[ "$state" != "$1" ] || return 0
+	state="$1"
+	printf '%s\n' "$state" > "$request_dir/status"
+	mv -f "$request_dir/status" "$STATUS_FILE"
+	case "$log_level:$2" in
+		err:info|err:warn|warn:info) ;;
+		*) logger -p "daemon.$2" -t net-autologin -- "$3" ;;
+	esac
+
+	[ "$led_enabled" = 1 ] || return 0
+	if [ "$state" = online ]; then
+		set_led "$red_led" 0
+		set_led "$blue_led" 1
+	else
+		set_led "$red_led" 1
+		set_led "$blue_led" 0
+	fi
+}
+
+valid_number() {
+	case "$1" in
+		''|*[!0-9]*|?????*) return 1 ;;
+	esac
+	[ "$1" -ge "$2" ] && [ "$1" -le "$3" ]
+}
+
+validate_config() {
+	case "$interface" in
+		''|*[!a-zA-Z0-9_]*) return 1 ;;
+	esac
+	case "$portal_url" in
+		http://*/*|https://*/*) ;;
+		*) return 1 ;;
+	esac
+	case "$portal_url" in
+		*[[:space:]?#\\]*) return 1 ;;
+	esac
+	local authority_and_path="${portal_url#*://}"
+	local authority="${authority_and_path%%/*}"
+	case "$authority" in
+		''|*@*) return 1 ;;
+	esac
+	case "$ac_name" in
+		''|*[!a-zA-Z0-9_.-]*) return 1 ;;
+	esac
+	case "$ac_ip" in
+		''|*[!0-9.]*) return 1 ;;
+	esac
+	local IFS=.
+	set -- $ac_ip
+	[ "$#" -eq 4 ] && [ "$1.$2.$3.$4" = "$ac_ip" ] || return 1
+	valid_number "$1" 0 255 && valid_number "$2" 0 255 &&
+		valid_number "$3" 0 255 && valid_number "$4" 0 255 &&
+		valid_number "$vlan" 0 4094 &&
+		valid_number "$check_interval" 5 3600 &&
+		valid_number "$retry_interval" 5 3600 || return 1
+
+	origin="${portal_url%%://*}://$authority"
+}
+
+probe_http() {
+	local code
+
+	code=$(curl -q --silent --ipv4 --noproxy '*' --interface "if!$wan_device" \
+		--proto '=http,https' --connect-timeout 3 --max-time 5 \
+		--output /dev/null --write-out '%{http_code}' --url "$1") &&
+		[ "$code" = 204 ]
+}
+
+get_wan_mac() {
+	local device="$wan_device" mac
+
+	if ! read -r mac 2>/dev/null < "/sys/class/net/$device/address" ||
+		[ "$mac" = 00:00:00:00:00:00 ]; then
+		network_get_physdev device "$interface" || return 1
+		read -r mac 2>/dev/null < "/sys/class/net/$device/address" || return 1
+	fi
+	case "$mac" in
+		00:00:00:00:00:00) return 1 ;;
+		[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f]:[0-9a-f][0-9a-f])
+			wan_mac="$mac" ;;
+		*) return 1 ;;
+	esac
+}
+
+login_portal() {
+	local url="$portal_url?wlanacip=$ac_ip&wlanacname=$ac_name&wlanuserip=$wan_ip&mac=$wan_mac&vlan=$vlan&url=http://1.1.1.1/"
+	local form='hostIp=http%3A%2F%2F127.0.0.1%3A8080%2F&loginType=&auth_type=0&isBindMac1=0&pageid=-1&templatetype=1&listbindmac=0&recordmac=1&isRemind=0&loginTimes=&groupId=&distoken=&echostr=&url=http%3A%2F%2F1.1.1.1&isautoauth=&notice_pic_loop1=%2Fportal%2Fuploads%2Fpc%2Fdemo3%2Fimages%2Flogo.jpg&notice_pic_loop2=%2Fportal%2Fuploads%2Fpc%2Fdemo3%2Fimages%2Frrs_bg.jpg'
+	local code result
+
+	# Curl reads these fields from private files to keep credentials out of argv.
+	printf '%s' "$username" > "$request_dir/username" &&
+		printf '%s' "$password" > "$request_dir/password" || return 1
+
+	code=$(curl -q --silent --ipv4 --noproxy '*' --interface "if!$wan_device" \
+		--proto '=http,https' --globoff --connect-timeout 5 --max-time 10 \
+		--header 'Content-Type: application/x-www-form-urlencoded' \
+		--header "Origin: $origin" --referer "$url" \
+		--header 'Upgrade-Insecure-Requests: 1' \
+		--user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36 Edg/152.0.0.0' \
+		--data-raw "$form" --data-urlencode "userId@$request_dir/username" \
+		--data-urlencode "passwd@$request_dir/password" --data-raw 'isBindMac=bindmac' \
+		--output /dev/null --write-out '%{http_code}' --url "$url")
+	result=$?
+	rm -f "$request_dir/username" "$request_dir/password"
+
+	[ "$result" -eq 0 ] || return 1
+	case "$code" in
+		2[0-9][0-9]|3[0-9][0-9]) return 0 ;;
+		*) return 1 ;;
+	esac
+}
+
+config_load net-autologin
+config_get interface main interface wan
+config_get username main username
+config_get password main password
+config_get portal_url main portal_url 'http://1.1.1.1:8888/webauth.do'
+config_get ac_ip main ac_ip '1.1.1.1'
+config_get ac_name main ac_name hhxy
+config_get vlan main vlan 3024
+config_get check_interval main check_interval 15
+config_get retry_interval main retry_interval 10
+config_get log_level main log_level info
+config_get_bool led_enabled main led_enabled 0
+config_get red_led main red_led 'red:status'
+config_get blue_led main blue_led 'blue:status'
+
+if ! validate_config; then
+	set_state invalid_config err 'Invalid configuration. Check the interface, portal URL, AC parameters and intervals.'
+elif [ -z "$username" ] || [ -z "$password" ]; then
+	set_state credentials_required warn 'Enter a username and password to start monitoring.'
+fi
+
+# procd reloads the process when this UCI configuration changes.
+if [ -n "$state" ]; then
+	while :; do pause 3600; done
+fi
+
+while :; do
+	network_flush_cache
+	if ! network_is_up "$interface" ||
+		! network_get_device wan_device "$interface" ||
+		! network_get_ipaddr wan_ip "$interface"; then
+		set_state waiting_wan warn 'Waiting for an IPv4 address on the selected interface.'
+		pause "$retry_interval"
+		continue
+	fi
+
+	if probe_http "$PROBE_PRIMARY" || probe_http "$PROBE_SECONDARY"; then
+		set_state online info 'Internet connectivity confirmed (HTTP 204).'
+		pause "$check_interval"
+		continue
+	fi
+
+	if ! get_wan_mac; then
+		set_state waiting_mac warn 'Waiting for a MAC address on the selected interface.'
+	elif login_portal; then
+		set_state login_sent info 'Portal request sent. Internet connectivity is still unconfirmed.'
+	else
+		set_state login_failed err 'Portal request failed. Retrying after the configured interval.'
+	fi
+	pause "$retry_interval"
+done

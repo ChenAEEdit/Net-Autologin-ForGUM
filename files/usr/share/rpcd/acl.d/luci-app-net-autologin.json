@@ -1,0 +1,18 @@
+{
+	"luci-app-net-autologin": {
+		"description": "Configure portal auto-login and read its status and logs",
+		"read": {
+			"file": {
+				"/var/run/net-autologin.status": [ "read" ],
+				"/usr/libexec/net-autologin-log": [ "exec" ]
+			},
+			"ubus": {
+				"file": [ "read", "exec" ]
+			},
+			"uci": [ "net-autologin" ]
+		},
+		"write": {
+			"uci": [ "net-autologin" ]
+		}
+	}
+}
